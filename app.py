@@ -2,38 +2,20 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# FORCE LIGHT + MODERN FONT + FIX ALL TEXT
+# CONFIG
 st.set_page_config(page_title="Prioritize", layout="centered")
 
+# INTER + SPACING
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    html, body, [class*="css"], .stApp, textarea, input, select, button, label, p, div, span, h1, h2, h3, h4, h5, h6 {
-        font-family: 'Inter', sans-serif !important;
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
-    }
-    .stTextArea > div > div > textarea {
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
-        border: 1px solid #D1D5DB !important;
-        border-radius: 8px !important;
-    }
-    .stExpander > div > label {
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
-    }
-    .stExpander {
-        border: 1px solid #D1D5DB !important;
-        border-radius: 8px !important;
-        background-color: #FFFFFF !important;
-    }
-    .stRadio > div > label {
-        color: #000000 !important;
-    }
-    .stSlider > div > div > div > div {
-        color: #000000 !important;
-    }
+    html, body, [class*="css"] {font-family: 'Inter', sans-serif;}
+    .stApp {background: #FFFFFF; padding: 1rem;}
+    .stTextArea > div > div > textarea {border-radius: 12px; border: 1px solid #D1D5DB; padding: 12px;}
+    .stExpander {border-radius: 12px; border: 1px solid #E5E7EB; margin: 16px 0; background: #FAFBFC;}
+    .stExpander > div > div {padding: 20px !important;}
+    .stRadio {margin: 24px 0;}
+    .slider-row {padding: 8px 0;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -50,34 +32,23 @@ ideas = st.text_area(
 ideas = [i.strip() for i in ideas if i.strip()]
 
 if ideas:
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        st.write("**Framework**")
-    with col2:
-        mode = st.radio("", ["RICE", "ICE"], horizontal=True)
+    mode = st.radio("Framework", ["RICE", "ICE"], horizontal=True)
 
     data = []
     for i, idea in enumerate(ideas):
         with st.expander(f"**{idea}**", expanded=i == 0):
+            # Init session state
+            for param, default in zip(["r", "i", "c", "e"], [100, 1, 80, 5]):
+                key = f"{param}{i}"
+                if key not in st.session_state:
+                    st.session_state[key] = default
+
             c1, c2 = st.columns(2)
-            reach = c1.slider("Reach (users)", 0, 1000, 100, key=f"r{i}")
-            impact = c1.slider("Impact (0–3)", 0, 3, 1, key=f"i{i}")
-            confidence = c2.slider("Confidence %", 0, 100, 80, key=f"c{i}")
-            effort = c2.slider("Effort (days)", 1, 30, 5, key=f"e{i}")
-
-            score = (reach * impact * confidence / 100) / effort if mode == "RICE" else \
-                    (impact * confidence * (100 - effort/30*100)) / 10000
-            data.append({"Idea": idea, "Score": round(score, 1)})
-
-    df = pd.DataFrame(data).sort_values("Score", ascending=False)
-
-    st.success(f"**Top Idea:** {df.iloc[0]['Idea']} — {mode} Score: {df.iloc[0]['Score']}")
-
-    fig = px.bar(
-        df, x="Idea", y="Score", color="Score",
-        color_continuous_scale="Blues",
-        labels={"Score": f"{mode} Score"}
-    ).update_layout(showlegend=False, height=360)
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.download_button("Download Rankings", df.to_csv(index=False), f"{mode.lower()}_rankings.csv")
+            with c1:
+                st.markdown('<div class="slider-row">', unsafe_allow_html=True)
+                reach = st.slider("Reach (users)", 0, 1000, st.session_state[f"r{i}"])
+                impact = st.slider("Impact (0–3)", 0, 3, st.session_state[f"i{i}"])
+                st.markdown('</div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown('<div class="slider-row">', unsafe_allow_html=True)
+                confidence = st
