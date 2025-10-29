@@ -2,16 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.title("RICE Prioritization Calculator")
-st.caption("Paste your ideas. Rank them. Ship the best.")
+st.title("RICE / ICE Prioritization Calculator")
+st.caption("Enter ideas. Adjust sliders. Get ranked results instantly.")
 
 ideas = st.text_area("Enter ideas (one per line)", "Add dark mode\nFix login bug\nBuild AI summary").split("\n")
 ideas = [i.strip() for i in ideas if i.strip()]
 
 if ideas:
     data = []
-    mode = st.radio("Scoring", ["RICE", "ICE"], horizontal=True)  # MOVED OUTSIDE LOOP
-    
+    mode = st.radio("Scoring", ["RICE", "ICE"], horizontal=True)
+
     for i, idea in enumerate(ideas):
         col1, col2, col3, col4 = st.columns(4)
         reach = col1.slider(f"Reach (users in 3mo)", 0, 1000, 100, key=f"r{i}")
@@ -30,27 +30,8 @@ if ideas:
     st.success(f"### Ranked Ideas ({mode})")
     st.dataframe(df.style.highlight_max(axis=0, subset=["Score"]), use_container_width=True)
     
-    # Chart
     fig = px.bar(df, x="Idea", y="Score", color="Effort", title=f"{mode} Score vs Effort")
     st.plotly_chart(fig, use_container_width=True)
     
-    # Export
     csv = df.to_csv(index=False)
     st.download_button("Download Rankings", csv, f"{mode.lower()}_rankings.csv")
-if mode == "RICE":
-    score = (reach * impact * confidence / 100) / effort
-else:  # ICE
-    score = (impact * confidence * (100 - effort/30*100)) / 10000  # Normalize
-score_name = mode
-data.append({"Idea": idea, "RICE": round(rice, 1), "Effort": effort})    
-    df = pd.DataFrame(data).sort_values("RICE", ascending=False)
-    st.success("### Ranked Ideas")
-    st.dataframe(df.style.highlight_max(axis=0, subset=["RICE"]), use_container_width=True)
-    
-    # Chart
-    fig = px.bar(df, x="Idea", y="RICE", color="Effort", title="RICE Score vs Effort")
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Export
-    csv = df.to_csv(index=False)
-    st.download_button("Download Rankings", csv, "rice_rankings.csv")
