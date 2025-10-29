@@ -17,7 +17,12 @@ if ideas:
         confidence = col3.slider(f"Confidence %", 0, 100, 80, key=f"c{i}")
         effort = col4.slider(f"Effort (person-days)", 1, 30, 5, key=f"e{i}")
         
-        rice = (reach * impact * confidence / 100) / effort
+        mode = st.radio("Scoring", ["RICE", "ICE"], horizontal=True)
+if mode == "RICE":
+    score = (reach * impact * confidence / 100) / effort
+else:  # ICE
+    score = (impact * confidence * (100 - effort/30*100)) / 10000  # Normalize
+score_name = mode
         data.append({"Idea": idea, "RICE": round(rice, 1), "Effort": effort})
     
     df = pd.DataFrame(data).sort_values("RICE", ascending=False)
