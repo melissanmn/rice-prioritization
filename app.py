@@ -46,4 +46,4 @@ if ideas:
 
     df = pd.DataFrame(data).sort_values("Score", ascending=False)
     
-    st.success(f"### Top Idea: **{df.iloc[0]['Idea']}**
+st.success(f"### Top Idea: **{df.iloc[0]['Idea']}** ({mode}: {df.iloc[0]['Score']})")
