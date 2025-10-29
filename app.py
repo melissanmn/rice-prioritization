@@ -2,8 +2,23 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# CLEAN, NATIVE, BEAUTIFUL
-st.set_page_config(page_title="Prioritize", layout="centered", initial_sidebar_state="collapsed")
+# FORCE LIGHT MODE + MODERN FONT
+st.set_page_config(
+    page_title="Prioritize",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
+# INJECT INTER FONT + LIGHT THEME
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+    .stApp { background: #FFFFFF; }
+</style>
+""", unsafe_allow_html=True)
 
 # TITLE
 st.title("Prioritize")
@@ -31,7 +46,7 @@ if ideas:
             reach = c1.slider("Reach (users)", 0, 1000, 100, key=f"r{i}")
             impact = c1.slider("Impact (0–3)", 0, 3, 1, key=f"i{i}")
             confidence = c2.slider("Confidence %", 0, 100, 80, key=f"c{i}")
-            effort = c2.slider("Effort (person-days)", 1, 30, 5, key=f"e{i}")
+            effort = c2.slider("Effort (days)", 1, 30, 5, key=f"e{i}")
 
             score = (reach * impact * confidence / 100) / effort if mode == "RICE" else \
                     (impact * confidence * (100 - effort/30*100)) / 10000
