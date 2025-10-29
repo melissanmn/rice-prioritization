@@ -23,8 +23,7 @@ if mode == "RICE":
 else:  # ICE
     score = (impact * confidence * (100 - effort/30*100)) / 10000  # Normalize
 score_name = mode
-        data.append({"Idea": idea, "RICE": round(rice, 1), "Effort": effort})
-    
+data.append({"Idea": idea, "RICE": round(rice, 1), "Effort": effort})    
     df = pd.DataFrame(data).sort_values("RICE", ascending=False)
     st.success("### Ranked Ideas")
     st.dataframe(df.style.highlight_max(axis=0, subset=["RICE"]), use_container_width=True)
